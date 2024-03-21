@@ -15,7 +15,7 @@
     "typescript": "^5.4.2"
   },
   "dependencies": {
-    "@inquirer/prompts": "^4.3.0",
-    "axios": "^1.6.8"
+    "axios": "^1.6.8",
+    "chalk": "^4.1.2"
   }
 }

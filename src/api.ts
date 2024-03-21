@@ -1,42 +1,47 @@
 import axios, {AxiosResponse} from "axios";
+import {Task, Token} from "./tasks/tasks";
 
-const baseUrl = "https://tasks.aidevs.pl"
-
-type ApiErrorResponse = {
-    code: number,
-    msg: string
-}
-
-type ApiSuccessResponse<T> = {
+type ApiResponse<T> = {
     code: 0,
     msg: string
 } & T
 
-type ApiResponse<T> = ApiErrorResponse | ApiSuccessResponse<T>
-
-const isSuccessResponse = <T>(apiRes: ApiResponse<T>): apiRes is ApiSuccessResponse<T> =>
-    apiRes.code === 0
-
-const call = async <T>(req: Promise<AxiosResponse<ApiResponse<T>>>) => {
-    try {
-        const { data: apiRes} = await req
-
-        if (isSuccessResponse(apiRes)) {
-            return apiRes
-        } else {
-            throw new Error(`code=${apiRes.code}, msg=${apiRes.msg}`)
-        }
-    } catch (e) {
-        console.error(`Request failed`, e)
-        throw e
+class NonZeroCodeError extends Error {
+    res: AxiosResponse<any>
+    constructor(res: AxiosResponse<any>) {
+        super("Response returned non-zero code")
+        Object.setPrototypeOf(this, new.target.prototype);
+        this.res = res
     }
 }
 
-export const getToken = async (apikey: string, taskName: string) =>
-    await call(axios.post<ApiResponse<{ token: string }>>(`${baseUrl}/token/${taskName}`, { apikey }))
+const apikey = process.env.API_KEY
 
-export const getTask = async <T>(token: string) =>
-    await call(axios.get<ApiResponse<T>>(`${baseUrl}/task/${token}`))
+const client = axios.create({
+    baseURL: 'https://tasks.aidevs.pl',
+})
+client.interceptors.response.use(res => {
+    if (res.data in res && res.data?.code != 0) {
+        throw new NonZeroCodeError(res)
+    }
+    return res
+})
+export const getToken = async (taskName: Task) => {
+    if (!apikey) {
+        throw new Error("apiKey is missing")
+    }
+    const { data: { token }} = await client.post<ApiResponse<{ token: Token }>>(`/token/${taskName}`, { apikey })
+    return token as Token
+}
 
-export const postAnswer = async (answer: string, token: string) =>
-    await call(axios.post(`${baseUrl}/answer/${token}`, { answer }))
+
+export const getTask = async <T>(token: Token) => {
+    const { data} = await client.get<ApiResponse<T>>(`task/${token}`)
+    return data
+}
+
+export const postAnswer = async (answer: string, token: Token) => {
+    const {data} = await client.post(`/answer/${token}`, {answer})
+    return data
+}
+
