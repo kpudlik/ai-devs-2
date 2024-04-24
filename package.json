@@ -4,7 +4,13 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "helloapi": "ts-node src/tasks/helloapi/index.ts",
+    "moderation": "ts-node src/tasks/moderation/index.ts",
+    "blogger": "ts-node src/tasks/blogger/index.ts",
+    "liar": "ts-node src/tasks/liar/index.ts",
+    "inprompt": "ts-node src/tasks/inprompt/index.ts",
+    "embedding": "ts-node src/tasks/embedding/index.ts",
+    "whisper": "ts-node src/tasks/whisper/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -16,6 +22,8 @@
   },
   "dependencies": {
     "axios": "^1.6.8",
-    "chalk": "^4.1.2"
+    "chalk": "^4.1.2",
+    "openai": "^4.38.2",
+    "zod": "^3.22.5"
   }
 }

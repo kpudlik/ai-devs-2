@@ -1,7 +1,11 @@
-import {helloapi} from "./helloapi";
-
 export enum Task {
-    helloapi = "helloapi"
+    helloapi = "helloapi",
+    moderation = "moderation",
+    blogger = "blogger",
+    liar = "liar",
+    inprompt = "inprompt",
+    embedding = "embedding",
+    whisper = "whisper",
 }
 
 export type Token = string
